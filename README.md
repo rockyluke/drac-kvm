@@ -1,4 +1,5 @@
 # drac-kvm ![License badge][license-img]
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Frockyluke%2Fdrac-kvm.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Frockyluke%2Fdrac-kvm?ref=badge_shield)
 
 ## Overview
 
@@ -188,3 +189,7 @@ Feel free to contribute on GitHub.
 ```
 
 [license-img]: https://img.shields.io/badge/license-Apache%202.0-blue.svg
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Frockyluke%2Fdrac-kvm.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Frockyluke%2Fdrac-kvm?ref=badge_large)
