@@ -175,8 +175,8 @@ func main() {
 		password = promptPassword()
 	}
 
-	// Version is only used with dell KVM vendor..
-	if vendor == "dell" && *_version == -1 {
+	// Version is only used with dell/supermicro KVM vendor..
+	if vendor != "hp" && *_version == -1 {
 		if value, err := cfg.Int(*_host, "version"); err == nil {
 			version = value
 		} else {
