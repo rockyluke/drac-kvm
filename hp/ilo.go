@@ -75,7 +75,7 @@ func (d *KvmHpDriver) Viewer() (string, error) {
 			m := f.(map[string]interface{})
 			sessionKey := m["session_key"].(string)
 
-			cookie := http.Cookie{Name: "session_key", Value: sessionKey}
+			cookie := http.Cookie{Name: "sessionKey", Value: sessionKey}
 			req, _ := http.NewRequest("GET", "https://"+d.Host+"/html/jnlp_template.html", nil)
 			req.AddCookie(&cookie)
 
