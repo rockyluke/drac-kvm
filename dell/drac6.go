@@ -5,7 +5,7 @@ package dell
 const viewer6 string = `
 <?xml version="1.0" encoding="UTF-8"?>
 <jnlp codebase="https://{{ .Host }}:443" spec="1.0+">
-<information>
+ <information>
   <title>iDRAC6 Console Redirection Client</title>
   <vendor>Dell Inc.</vendor>
    <icon href="https://{{ .Host }}:443/images/logo.gif" kind="splash"/>
@@ -27,19 +27,24 @@ const viewer6 string = `
    <all-permissions/>
  </security>
  <resources>
-   <j2se version="1.6 1.5 1.4+"/>
-   <jar href="https://{{ .Host }}:443/software/avctKVM.jar" download="eager" main="true" />
-   <jar href="https://{{ .Host }}:443/software/jpcsc.jar" download="eager"/>
+  <j2se version="1.6 1.5 1.4+"/>
+  <jar href="https://{{ .Host }}:443/software/avctKVM.jar" download="eager" main="true" />
+  <jar href="https://{{ .Host }}:443/software/jpcsc.jar" download="eager"/>
  </resources>
  <resources os="Windows">
-   <nativelib href="https://{{ .Host }}:443/software/avctKVMIOWin32.jar" download="eager"/>
-   <nativelib href="https://{{ .Host }}:443/software/avctVMWin32.jar" download="eager"/>
+  <nativelib href="https://{{ .Host }}:443/software/avctKVMIOWin32.jar" download="eager"/>
+  <nativelib href="https://{{ .Host }}:443/software/avctVMWin32.jar" download="eager"/>
  </resources>
-  <resources os="Linux">
-    <nativelib href="https://{{ .Host }}:443/software/avctKVMIOLinux.jar" download="eager"/>
-   <nativelib href="https://{{ .Host }}:443/software/avctVMLinux.jar" download="eager"/>
-  </resources>
-</jnlp>
+ <resources os="Linux">
+  <nativelib href="https://{{ .Host }}:443/software/avctKVMIOLinux.jar" download="eager"/>
+  <nativelib href="https://{{ .Host }}:443/software/avctVMLinux.jar" download="eager"/>
+ </resources>
+ <resources os="Mac OS X" arch="x86_64">
+  <nativelib href="https://{{ .Host }}:443/software/avctKVMIOMac64.jar" download="eager"/>
+  <nativelib href="https://{{ .Host }}:443/software/avctVMMac64.jar" download="eager"/>
+ </resources>
+
+  </jnlp>
 `
 
 // EOF
