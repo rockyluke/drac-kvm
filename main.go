@@ -54,10 +54,7 @@ func getJavawsArgs(waitFlag bool) string {
 		strings.Contains(string(slurp[:]), "1.8") {
 		if waitFlag {
 			javawsArgs = "-wait"
-		} else {
-			javawsArgs = ""
 		}
-
 	}
 
 	return javawsArgs
@@ -196,7 +193,8 @@ func main() {
 
 	// Launch it!
 	log.Printf("Launching KVM session with %s", filename)
-	if err := exec.Command(*_javaws, getJavawsArgs(*_wait), filename, "-nosecurity", "-noupdate", "-Xnofork").Run(); err != nil {
+	cmd := exec.Command(*_javaws, getJavawsArgs(*_wait), filename, "-nosecurity", "-noupdate", "-Xnofork")
+	if err := cmd.Run(); err != nil {
 		os.Remove(filename)
 		log.Fatalf("Unable to launch DRAC (%s), from file %s", err, filename)
 	}
@@ -204,5 +202,4 @@ func main() {
 	// Give javaws a few seconds to start & read the jnlp
 	time.Sleep(time.Duration(*_delay) * time.Second)
 }
-
 // EOF
