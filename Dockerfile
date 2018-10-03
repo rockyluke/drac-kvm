@@ -12,7 +12,14 @@
 # OTHER  TORTIOUS ACTION,  ARISING  OUT OF  OR  IN CONNECTION  WITH  THE USE  OR
 # PERFORMANCE OF THIS SOFTWARE.
 
-FROM golang:1.8.3-stretch
+FROM golang:1.10.4-stretch as builder
+
+COPY . /go/src/github.com/rockyluke/drac-kvm
+WORKDIR /go/src/github.com/rockyluke/drac-kvm
+
+RUN go build
+
+FROM golang:1.10.4-stretch
 
 ENV DEBIAN_FRONTEND="noninteractive" \
     TZ="Europe/Amsterdam"
@@ -24,9 +31,11 @@ RUN apt-get update  -qq && \
       libx11-6 \
       x11-utils
 
-RUN go get github.com/rockyluke/drac-kvm
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENTRYPOINT [ "drac-kvm" ]
+COPY --from=builder /go/src/github.com/rockyluke/drac-kvm/drac-kvm /usr/bin/drac-kvm
 
-CMD [ "--help" ]
+ENTRYPOINT ["drac-kvm"]
+
+CMD ["--help"]
 # EOF

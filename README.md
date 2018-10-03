@@ -71,12 +71,25 @@ This simple Go program should help ease the pain.
 
 ```bash
 drac-kvm --help
-Usage of drac-kvm
-  -h, --host="some.hostname.com": The DRAC host (or IP)
-  -j, --javaws="/usr/bin/javaws": The path to javaws binary
-  -p, --password=false: Prompt for password (optional, will use 'calvin' if not present)
-  -u, --username="": The DRAC username
-  -v, --version=-1: iDRAC version (6, 7 or 8)
+Usage of ./drac-kvm:
+  -d, --delay int
+    	Number of seconds to delay for javaws to start up & read jnlp before deleting it (default 10)
+  -h, --host string
+    	The DRAC host (or IP)
+  -j, --javaws string
+    	The path to javaws binary (default "/usr/bin/javaws")
+  -k, --keep-jnlp
+    	Keep JNLP files and do not clean them after failed start
+  -p, --password
+    	Prompt for password (optional, will use default vendor if not present)
+  -u, --username string
+    	The KVM username
+  -V, --vendor string
+    	The KVM Vendor
+  -v, --version int
+    	KVM vendor specific version for idrac: (6, 7 or 8) (default -1)
+  -w, --wait
+    	Wait for java console process end
 ```
 
 ### Example using default dell credentials (root/calvin)
@@ -108,6 +121,7 @@ cat ~/.drackvmrc
 # Useful if your environment has consistent usernames and
 # passwords for the KVMs.
 [defaults]
+javaws_path = /Library/Internet Plug-Ins/JavaAppletPlugin.plugin/Contents/Home/bin/javaws
 username = foo
 password = bar
 
@@ -126,6 +140,20 @@ password = password4root
 vendor = supermicro
 host = 10.33.0.2
 username = root
+```
+
+## Java Security
+
+Some versions of java are not compatible with older versions of ilo providers. If you receive an error like this
+
+[java-error](https://user-images.githubusercontent.com/67790/46364353-db72b080-c675-11e8-9d7e-3ab0540c51d6.png)
+
+You have to edit `$JAVA_HOME/lib/security/java.security` file and remove following entry `3DES_EDE_CBC` from line starting with `jdk.tls.disabledAlgorithms`. This is global setting and it can affect your system security.
+
+```diff
+
+- jdk.tls.disabledAlgorithms=SSLv3, RC4, MD5withRSA, DH keySize < 1024, EC keySize < 224, DES40_CBC, RC4_40, 3DES_EDE_CBC
++ jdk.tls.disabledAlgorithms=SSLv3, RC4, MD5withRSA, DH keySize < 1024, EC keySize < 224, DES40_CBC, RC4_40
 ```
 
 ## Credits
