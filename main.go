@@ -21,7 +21,7 @@ import (
 
 const (
 	// DracKVMVersion current application version
-	DracKVMVersion = "2.0.1"
+	DracKVMVersion = "2.2.0"
 )
 
 func promptPassword() string {
@@ -30,14 +30,13 @@ func promptPassword() string {
 	return string(password)
 }
 
-func getJavawsArgs(waitFlag bool) string {
-	var javawsArgs = "-jnlp"
+func getJavawsArgs(waitFlag bool, javaws string) string {
+	var javawsArgs = ""
 
-	cmd := exec.Command("java", "-version")
-	stderr, err := cmd.StderrPipe()
+	cmd := exec.Command(javaws)
+	stdout, err := cmd.StdoutPipe()
 
 	if err != nil {
-		//os.Remove(filename)
 		log.Fatalf("Java not present on your system... (%s)", err)
 	}
 
@@ -45,16 +44,23 @@ func getJavawsArgs(waitFlag bool) string {
 		log.Fatal(err)
 	}
 
-	slurp, _ := ioutil.ReadAll(stderr)
+	// HACK: javaws executed without any params returns exit code 255 test
+	// if we have it here don't fail.
+	slurp, _ := ioutil.ReadAll(stdout)
 	if err := cmd.Wait(); err != nil {
-		log.Fatal(err)
+		if !strings.Contains(err.Error(), "255") {
+			log.Fatal(err)
+		}
 	}
 
-	if strings.Contains(string(slurp[:]), "1.7") ||
-		strings.Contains(string(slurp[:]), "1.8") {
+	if strings.Contains(string(slurp[:]), "-wait") {
 		if waitFlag {
 			javawsArgs = "-wait"
 		}
+	}
+
+	if strings.Contains(string(slurp[:]), "-jnlp") {
+		javawsArgs = "-jnlp"
 	}
 
 	return javawsArgs
@@ -65,6 +71,7 @@ func main() {
 	var vendor string
 	var username string
 	var password string
+	var javaws string
 	var version int
 
 	pflag.Usage = func() {
@@ -75,15 +82,16 @@ func main() {
 
 	// CLI flags
 	var _host = pflag.StringP("host", "h", "", "The DRAC host (or IP)")
-	var _vendor = pflag.StringP("vendor", "V", "", "The KVM Vendor")
+	var _vendor = pflag.StringP("vendor", "V", "dell", "The KVM Vendor one of (dell/hp/supermicro)")
 
 	var _username = pflag.StringP("username", "u", "", "The KVM username")
 	var _password = pflag.BoolP("password", "p", false, "Prompt for password (optional, will use default vendor if not present)")
-	var _version = pflag.IntP("version", "v", -1, "KVM vendor specific version for idrac: (6, 7 or 8)")
+	var _version = pflag.IntP("version", "v", -1, "KVM vendor specific version for dell: (6, 7 or 8), supermicro: (169 or 170), hp: version autodetected")
 
 	var _delay = pflag.IntP("delay", "d", 10, "Number of seconds to delay for javaws to start up & read jnlp before deleting it")
 	var _javaws = pflag.StringP("javaws", "j", DefaultJavaPath(), "The path to javaws binary")
 	var _wait = pflag.BoolP("wait", "w", false, "Wait for java console process end")
+	var _keep = pflag.BoolP("keep-jnlp", "k", false, "Keep JNLP files and do not clean them after failed start")
 
 	// Parse the CLI flags
 	pflag.Parse()
@@ -94,14 +102,20 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Check we have access to the javaws binary
-	if _, err := os.Stat(*_javaws); err != nil {
-		log.Fatalf("No javaws binary found at %s", *_javaws)
-	}
-
 	// Search for existing config file
 	usr, _ := user.Current()
 	cfg, _ := goconfig.LoadConfigFile(usr.HomeDir + "/.drackvmrc")
+
+	if value, err := cfg.GetValue("defaults", "javaws_path"); err == nil {
+		javaws = value
+	} else {
+		javaws = *_javaws
+	}
+
+	// Check we have access to the javaws binary
+	if _, err := os.Stat(javaws); err != nil {
+		log.Fatalf("No javaws binary found at %s", javaws)
+	}
 
 	/*
 	 *	Values loaded from config file has lower priority than command line arguments.
@@ -175,8 +189,8 @@ func main() {
 		password = promptPassword()
 	}
 
-	// Version is only used with dell KVM vendor..
-	if vendor == "dell" && *_version == -1 {
+	// Version is only used with dell/supermicro KVM vendor..
+	if vendor != "hp" && *_version == -1 {
 		if value, err := cfg.Int(*_host, "version"); err == nil {
 			version = value
 		} else {
@@ -193,13 +207,16 @@ func main() {
 
 	// Launch it!
 	log.Printf("Launching KVM session with %s", filename)
-	cmd := exec.Command(*_javaws, getJavawsArgs(*_wait), filename, "-nosecurity", "-noupdate", "-Xnofork")
+	cmd := exec.Command(javaws, getJavawsArgs(*_wait, javaws), filename, "-nosecurity", "-noupdate", "-Xnofork")
 	if err := cmd.Run(); err != nil {
-		os.Remove(filename)
-		log.Fatalf("Unable to launch DRAC (%s), from file %s", err, filename)
+		if !*_keep {
+			os.Remove(filename)
+		}
+		log.Fatalf("Unable to launch ilo console (%s), from file %s", err, filename)
 	}
 
 	// Give javaws a few seconds to start & read the jnlp
 	time.Sleep(time.Duration(*_delay) * time.Second)
 }
+
 // EOF

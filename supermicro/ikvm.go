@@ -30,6 +30,7 @@ const (
 // the various Supermicro iKVM versions, keyed by version number
 var SupermicroTemplates = map[int]string{
 	169: ikvm169,
+	170: ikvm170,
 }
 
 // Viewer returns a viewer.jnlp template filled out with the

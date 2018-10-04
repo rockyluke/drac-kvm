@@ -57,7 +57,7 @@ func CreateKVM(Host string, Username string, Password string, Vendor string,
 			Host:     Host,
 			Username: Username,
 			Password: Password,
-			Version:  169,
+			Version:  Version,
 		}
 	case "hp":
 		driver = &hp.KvmHpDriver{
