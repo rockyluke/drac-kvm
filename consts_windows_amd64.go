@@ -16,6 +16,9 @@ var (
 func DefaultJavaPath() string {
 	//javaws lives in a folder with a version number on Windows, so we can search for javaws.exe
 	for _, r := range javaRoots {
+		if _, err := os.Stat(r); os.IsNotExist(err) {
+			continue
+		}
 		filepath.Walk(r, visit)
 	}
 	return winJavaPath
