@@ -19,7 +19,7 @@ type KvmSupermicroDriver struct {
 	Version  int
 }
 
-// KvmSupermicroTemplate
+// KvmSupermicroTemplate is the Supermicro KVM template
 type KvmSupermicroTemplate struct {
 	Template         string
 	JARVersion       string
@@ -27,7 +27,7 @@ type KvmSupermicroTemplate struct {
 	Arguments        []string
 }
 
-// KvmSupermicroContext
+// KvmSupermicroContext is the Supermicro KVM context
 type KvmSupermicroContext struct {
 	Host             string
 	Username         string
