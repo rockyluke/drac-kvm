@@ -86,7 +86,7 @@ func main() {
 
 	var _username = pflag.StringP("username", "u", "", "The KVM username")
 	var _password = pflag.BoolP("password", "p", false, "Prompt for password (optional, will use default vendor if not present)")
-	var _version = pflag.IntP("version", "v", -1, "KVM vendor specific version for dell: (6, 7 or 8), supermicro: (169 or 170), hp: version autodetected")
+	var _version = pflag.IntP("version", "v", -1, "KVM vendor specific version for dell: (6, 7 or 8), supermicro: (16921, 16927 or 16937), hp: version autodetected")
 
 	var _delay = pflag.IntP("delay", "d", 10, "Number of seconds to delay for javaws to start up & read jnlp before deleting it")
 	var _javaws = pflag.StringP("javaws", "j", DefaultJavaPath(), "The path to javaws binary")
@@ -138,7 +138,7 @@ func main() {
 	 *	4) Use default "dell" value to keep original behaviour
 	 *
 	 */
-	if *_vendor == "" {
+	if *_vendor == "" || *_vendor == "dell" {
 		if value, err := cfg.GetValue(*_host, "vendor"); err == nil {
 			vendor = value
 		} else {
